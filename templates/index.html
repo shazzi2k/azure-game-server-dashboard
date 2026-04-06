@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ShazCorp Cloud</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=12">
+</head>
+<body>
+    
+
+    <div class="header">
+        <div class="branding">
+            <img src="/static/logo.png" class="logo">
+            <div>
+                <h1>ShazCorp Cloud</h1>
+                <p class="subtitle">Game Server Platform</p>
+            </div>
+        </div>
+    </div>   
+    <h1 style="grid-column: 1 / -1; text-align: center;">
+        ShazCorp Dashboard
+    </h1>
+    <div class="container">
+    
+    <div class="card">
+        <h2>Server Status</h2>
+        <div class="status">
+            <div class="dot green"></div>
+            <p>Online</p>
+        </div>
+        <p id="hostname">Server: Loading...</p>
+        <p><strong>CPU:</strong> <span id="cpu-name">Loading...</span></p>
+        <p id="cpu">CPU: --%</p>
+        <p id="ram">RAM: --</p>
+        <p id="disk">Disk: --</p>
+    </div>
+        <div class="card">
+         <h2>VM Management</h2>
+            <div class="server">
+                <h3>windows-gaming</h3>
+                <div class="status">
+                    <div class="dot" id="windows-gaming-dot"></div>
+                    <span id="windows-gaming-text">Checking...</span>
+                </div>
+                <p id="windows-gaming-vmstats">CPU: -- | RAM: --</p>
+                <button onclick="control('vm/start/windows-gaming', 'windows-gaming-text', 'Starting...', this)">Start</button>
+                <button onclick="control('vm/stop/windows-gaming', 'windows-gaming-text', 'Stopping...', this)">Stop</button>
+                <button onclick="control('vm/restart/windows-gaming', 'windows-gaming-text', 'Restarting...', this)">Restart</button>
+                </div>
+                Future VM expansion, but currently only the Windows Gaming VM is available.
+    </div>
+    <div class="card">
+        <h2>VM Game Servers</h2>
+
+        <div class="server">
+            <h3>Digital Combat Simulator</h3>
+            <div class="status">
+                <div class="dot" id="dcs-dot"></div>
+                <span id="dcs-text">Checking...</span>
+            </div>
+            <div class="controls">
+                <button onclick="control('api/start/dcs', 'dcs-text', 'Starting...', this)">Start</button>
+                <button onclick="control('api/stop/dcs', 'dcs-text', 'Stopping...', this)">Stop</button>
+                <button onclick="control('api/restart/dcs', 'dcs-text', 'Restarting...', this)">Restart</button>
+            </div>
+        </div>
+        <div class="server">
+            <h3>Sons of the Forest</h3>
+            <div class="status"> 
+              
+              <div class="dot" id="sons-dot"></div>
+              <span id="sons-text">Checking...</span>
+
+            </div>
+            <div class="controls">
+               <button onclick="control('api/start/sotf', 'sons-text', 'Starting...', this)">Start</button>
+               <button onclick="control('api/stop/sotf', 'sons-text', 'Stopping...', this)">Stop</button>
+               <button onclick="control('api/restart/sotf', 'sons-text', 'Restarting...', this)">Restart</button>
+            </div>
+        </div>
+    </div>
+        <div class="card">
+            <h2>Backups</h2>
+            <p>Last Backup: 2 hours ago</p>
+            <button onclick="alert('Backup triggered')">Run Backup</button>
+        </div>
+        <div class="card">
+    <h2>Docker Game Servers</h2>
+
+    <div class="server">
+        <h3>Zomboid</h3>
+        <div class="status">
+            <div class="dot" id="zomboid-dot"></div>
+            <span id="zomboid-text">Checking...</span>
+        </div>
+             <p id="zomboid-stats">CPU: -- | RAM: --</p>
+        <button onclick="control('docker/start/zomboid', 'zomboid-text', 'Starting...', this)">Start</button>
+        <button onclick="control('docker/stop/zomboid', 'zomboid-text', 'Stopping...', this)">Stop</button>
+        <button onclick="control('docker/restart/zomboid', 'zomboid-text', 'Restarting...', this)">Restart</button>
+    </div>
+
+    <div class="server">
+        <h3>7 Days to Die</h3>
+        <div class="status">
+            <div class="dot" id="7days2die-dot"></div>
+            <span id="7days2die-text">Checking...</span>
+        </div>
+            <p id="7days2die-stats">CPU: -- | RAM: --</p>
+        <button onclick="control('docker/start/7days2die', '7days2die-text', 'Starting...', this)">Start</button>
+        <button onclick="control('docker/stop/7days2die', '7days2die-text', 'Stopping...', this)">Stop</button>
+        <button onclick="control('docker/restart/7days2die', '7days2die-text', 'Restarting...', this)">Restart</button>
+    </div>
+
+    <div class="server">
+        <h3>Valheim</h3>
+        <div class="status">
+            <div class="dot" id="valheim-dot"></div>
+            <span id="valheim-text">Checking...</span>
+        </div>
+            <p id="valheim-stats">CPU: -- | RAM: --</p>
+        <button onclick="control('docker/start/valheim', 'valheim-text', 'Starting...', this)">Start</button>
+        <button onclick="control('docker/stop/valheim', 'valheim-text', 'Stopping...', this)">Stop</button>
+        <button onclick="control('docker/restart/valheim', 'valheim-text', 'Restarting...', this)">Restart</button>
+    </div>
+</div>
+
+    
+    
+
+<script>
+
+
+
+function startVM(name) {
+    fetch(`/vm/${name}/start`, { method: "POST" });
+}
+
+function stopVM(name) {
+    fetch(`/vm/${name}/stop`, { method: "POST" });
+}
+
+function restartVM(name) {
+    fetch(`/vm/${name}/restart`, { method: "POST" });
+}
+
+function sendAction(action) {
+    fetch(`/${action}`)
+        .then(res => res.json())
+        .then(data => {
+            alert("Server " + data.status);
+        });
+}
+</script>
+<script>
+function control(path, labelId = null, message = null, button = null) {
+
+    if (button) {
+        button.disabled = true;
+    }
+
+    if (labelId && message) {
+        let el = document.getElementById(labelId);
+        if (el) {
+            el.innerText = message;
+        }
+    }
+
+    fetch('/' + path)
+        .then(res => res.text())
+        .then(data => {
+            console.log("Action result:", data);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Action failed");
+        })
+        .finally(() => {
+            if (button) {
+                setTimeout(() => button.disabled = false, 3000);
+            }
+        });
+}
+</script>
+<script>
+function updateStatus() {
+    fetch('/api/containers')
+        .then(res => res.json())
+        .then(data => {
+
+            for (const [name, state] of Object.entries(data)) {
+
+                let dot = document.getElementById(name + "-dot");
+                let text = document.getElementById(name + "-text");
+
+                if (!dot || !text) continue;
+
+                if (state === "running") {
+                    dot.className = "dot green";
+                    text.innerText = "Online (Running)";
+                } else {
+                    dot.className = "dot red";
+                    text.innerText = "Offline (Stopped)";
+                }
+            }
+        });
+}
+function updateDockerStats() {
+    fetch('/api/docker-stats')
+        .then(res => res.json())
+        .then(data => {
+
+            console.log("Docker stats:", data);
+
+            for (const [name, stats] of Object.entries(data)) {
+
+                let el = document.getElementById(name + "-stats");
+
+                if (!el) {
+                    console.log("Missing element:", name + "-stats");
+                    continue;
+                }
+
+                let memUsed = stats.mem.split("/")[0].trim();
+
+                function convertToGB(mem) {
+                    if (mem.includes("MiB")) {
+                        return (parseFloat(mem) / 1024).toFixed(2) + " GB";
+                    }
+                    if (mem.includes("GiB")) {
+                        return parseFloat(mem).toFixed(2) + " GB";
+                    }
+                    return mem;
+                }
+
+                el.innerText = `CPU: ${stats.cpu} | RAM: ${convertToGB(memUsed)}`;
+            }
+        });
+}
+
+setInterval(updateDockerStats, 5000);
+updateDockerStats();
+
+function updateVMStats() {
+    fetch('/api/vm-stats')
+        .then(res => res.json())
+        .then(data => {
+
+            let el = document.getElementById("windows-gaming-vmstats");
+            if (!el) return;
+
+            el.innerText = `CPU: ${data.cpu}% | RAM: ${data.ram_used}MB / ${data.ram_max}MB`;
+        });
+}
+
+setInterval(updateVMStats, 5000);
+updateVMStats();
+
+
+function updateVMGames() {
+    fetch('/api/vm-games')
+        .then(res => res.json())
+        .then(data => {
+
+            console.log("VM Games:", data);
+
+            const games = ["dcs", "sons"];
+
+            for (const name of games) {
+
+                let dot = document.getElementById(name + "-dot");
+                let text = document.getElementById(name + "-text");
+
+                if (!dot || !text) {
+                    console.log("Missing element:", name);
+                    continue;
+                }
+
+                // 🔥 VM OFF override
+                if (data.vm === "stopped") {
+                    dot.className = "dot red";
+                    text.innerText = "Offline (VM Off)";
+                    continue;
+                }
+
+                if (data[name]) {
+                    dot.className = "dot green";
+                    text.innerText = "Online (Running)";
+                } else {
+                    dot.className = "dot red";
+                    text.innerText = "Offline (Stopped)";
+                }
+            }
+        });
+}
+
+setInterval(updateVMGames, 5000);
+updateVMGames();
+
+
+function updateVMStatus() {
+    fetch('/api/vms')
+        .then(res => res.json())
+        .then(data => {
+
+            console.log("VMs:", data);
+
+            for (const [name, state] of Object.entries(data)) {
+
+                let dot = document.getElementById(name + "-dot");
+                let text = document.getElementById(name + "-text");
+
+                if (!dot || !text) {
+                    console.log("Missing VM element:", name);
+                    continue;
+                }
+
+                if (state === "running") {
+                    dot.className = "dot green";
+                    text.innerText = "Online (Running)";
+                } else {
+                    dot.className = "dot red";
+                    text.innerText = "Offline (Stopped)";
+                }
+            }
+        });
+}
+
+setInterval(updateVMStatus, 5000);
+updateVMStatus();
+
+function updateSystem() {
+    fetch('/api/system')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("hostname").innerText =
+                "Server: " + data.hostname;
+
+            document.getElementById("cpu").innerText =
+                "CPU: " + data.cpu + "%";
+
+            document.getElementById("ram").innerText =
+                `RAM: ${data.ram_used}GB / ${data.ram_total}GB`;
+
+            document.getElementById("disk").innerText =
+                `Disk: ${data.disk_used}GB / ${data.disk_total}GB`;
+        });
+}
+
+setInterval(updateSystem, 5000);
+updateSystem();
+setInterval(updateStatus, 5000);
+updateStatus();
+
+fetch("/stats")
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("cpu-name").innerText = data.cpu;
+  });
+
+function loadStats() {
+    fetch("/stats")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("cpu-name").innerText = data.cpu;
+      });
+}
+
+loadStats();
+</script>
+
+</body>
+</html>
