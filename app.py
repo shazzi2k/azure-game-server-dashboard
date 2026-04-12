@@ -36,43 +36,17 @@ app.config.update(
 from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
 
 
-        if username:
-            username = username.strip()
-        if password:
-            password = password.strip()
+   
 
-        print("STRIPPED:", username, password)
 
-        if username in USERS:
-            print("User exists")
-            print("Expected password:", USERS[username])
-
-        if username in USERS and USERS[username] == password:
-            print("LOGIN SUCCESS")
-            session['logged_in'] = True
-            session['user'] = username
-            return redirect('/')
-
-        print("LOGIN FAILED")
-
-        return render_template('login.html', error="Invalid login")
-
-    return render_template('login.html')
-
+from flask import request, render_template
 
 @app.route("/")
-def home():
-    if not session.get("logged_in"):
-        return redirect("/login")
-
-    return render_template("index.html", user=session.get("user"))
+def index():
+    user = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
+    return render_template("index.html", user=user)
 
 from flask import make_response
 

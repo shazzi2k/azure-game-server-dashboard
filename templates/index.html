@@ -11,18 +11,7 @@
 
     {% if user %}
         Logged in as: {{ user }}
-        <a href="/logout" style="
-            position:absolute;
-            top:45px;
-            right:20px;
-            padding:8px 14px;
-            background:#ff4d4d;
-            color:white;
-            text-decoration:none;
-            border-radius:6px;
-        ">
-            Logout
-</a>
+        <a href="/.auth/logout">Logout</a>
     {% else %}
         <a href="/login" class="btn login-btn">
     {% endif %}
