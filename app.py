@@ -47,23 +47,6 @@ def index():
 
 
 
-from functools import wraps
-from flask import request
-
-def login_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-
-        # 🔥 allow login + static always
-        if request.endpoint in ['login', 'static']:
-            return f(*args, **kwargs)
-
-        if not session.get('logged_in'):
-            return {"error": "Unauthorized"}, 401
-
-        return f(*args, **kwargs)
-    return wrapper
-
 ### End login block ###
 
 
