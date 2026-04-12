@@ -8,9 +8,6 @@ import psutil
 import platform
 
 
-
-
-
 ### Login block - loads username and password from .env file ###
 
 users_raw = os.getenv("DASH_USERS", "admin:password")
@@ -47,16 +44,6 @@ from flask import request, render_template
 def index():
     user = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
     return render_template("index.html", user=user)
-
-from flask import make_response
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    response = make_response(redirect('/login'))
-    response.headers['Cache-Control'] = 'no-store'
-    return response
-
 
 
 
