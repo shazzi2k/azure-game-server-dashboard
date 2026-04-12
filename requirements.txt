@@ -1,7 +1,5 @@
-flask
-requests
+Flask
 gunicorn
-psutilflask
-requests
+psutil
 python-dotenv
-gunicorn
+requests
