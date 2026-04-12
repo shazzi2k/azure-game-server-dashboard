@@ -10,16 +10,6 @@ import platform
 
 ### Login block - loads username and password from .env file ###
 
-users_raw = os.getenv("DASH_USERS", "admin:password")
-
-USERS = {}
-for pair in users_raw.split(","):
-    if ":" in pair:
-        user, pwd = pair.split(":", 1)
-        USERS[user.strip()] = pwd.strip()
-
-
-
 cpu_name = platform.processor()
 app = Flask(__name__)
 app.secret_key = "df8765sd7a5sd67s4f4d3sdaf4ds3s4a"
@@ -34,8 +24,6 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 
-from flask import redirect
-
 @app.route("/login")
 def fix_login():
     return redirect("/")
@@ -47,7 +35,11 @@ def index():
     user = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
     return render_template("index.html", user=user)
 
-
+def require_auth():
+    user = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
+    if not user:
+        return False
+    return True
 
 ### End login block ###
 
@@ -80,21 +72,12 @@ def stats():
 
 from flask import jsonify
 
-@app.route('/api/system')
-@login_required
-def system_status():
-    cpu = psutil.cpu_percent(interval=1)
-    ram = psutil.virtual_memory()
-    disk = psutil.disk_usage('/')
+@app.route("/api/system")
+def system():
+    if not require_auth():
+        return {"error": "Unauthorized"}, 401
 
-    return jsonify({
-        "hostname": socket.gethostname(),
-        "cpu": cpu,
-        "ram_used": round(ram.used / (1024**3), 2),
-        "ram_total": round(ram.total / (1024**3), 2),
-        "disk_used": round(disk.used / (1024**3), 2),
-        "disk_total": round(disk.total / (1024**3), 2)
-    })
+    return {"status": "ok"}
 
 
 
