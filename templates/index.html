@@ -24,18 +24,7 @@
             Logout
 </a>
     {% else %}
-        <a href="/login" style="
-            position:absolute;
-            top:45px;
-            right:20px;
-            padding:8px 14px;
-            background:#4CAF50;
-            color:white;
-            text-decoration:none;
-            border-radius:6px;
-        ">
-            Login
-</a>
+        <a href="/login" class="btn login-btn">
     {% endif %}
 
 </div>
@@ -60,7 +49,7 @@
             <div class="dot green"></div>
             <p>Online</p>
         </div>
-        <p id="hostname">Server: Loading...</p>
+        <p id="hostname" class="loading">Server: Loading...</p>
         <p><strong>CPU:</strong> <span id="cpu-name">Loading...</span></p>
         <p id="cpu">CPU: --%</p>
         <p id="ram">RAM: --</p>
@@ -170,6 +159,8 @@ function logout() {
     window.location.href = "/logout";
 }
 
+//API helper with built-in 401 handling and JSON parsing
+
 function safeFetch(url, options = {}) {
     return fetch(url, options)
         .then(res => {
@@ -196,25 +187,8 @@ function safeFetch(url, options = {}) {
         });
 }
 
-function startVM(name) {
-    safeFetch(`/vm/${name}/start`, { method: "POST" });
-}
 
-function stopVM(name) {
-    safeFetch(`/vm/${name}/stop`, { method: "POST" });
-}
 
-function restartVM(name) {
-    safeFetch(`/vm/${name}/restart`, { method: "POST" });
-}
-
-function sendAction(action) {
-    safeFetch(`/${action}`)
-        .then(data => {
-        if (!data) return;
-            alert("Server " + data.status);
-        });
-}
 
 function control(path, labelId = null, message = null, button = null) {
 
@@ -229,7 +203,7 @@ function control(path, labelId = null, message = null, button = null) {
         }
     }
 
-    safeFetch('/' + path, { method: "POST" })
+    safeFetch(path.startsWith("/") ? path : "/" + path, { method: "POST" })
         .then(data => {
             console.log("Action result:", data);
         })
@@ -244,6 +218,9 @@ function control(path, labelId = null, message = null, button = null) {
         });
 }
 
+//=========end of api helper and control functions, start of status update intervals========
+
+//====Start of docker instances
 function updateStatus() {
     safeFetch('/api/containers')
         .then(data => {
@@ -274,7 +251,7 @@ function updateDockerStats() {
         .then(data => {
             if (!data) return;
 
-            console.log("Docker stats:", data);
+            
 
             for (const [name, stats] of Object.entries(data)) {
 
@@ -299,8 +276,8 @@ function updateDockerStats() {
 }
 
 intervals.push(setInterval(updateDockerStats, 5000));
-
-//backup section
+//====End of docker instances
+//============= Backup status update interval moved to app.py to reduce load and avoid 401 issues during login/logout. =================
 
 function updateBackupStatus() {
     safeFetch('/api/backup-status')
@@ -350,6 +327,10 @@ function updateBackupStatus() {
         });
 }
 intervals.push(setInterval(updateBackupStatus, 10000));
+
+//=============End of backup section, moved to app.py to reduce load and avoid 401 issues during login/logout.================
+
+//============= Start of VM status and games section ================
 
 function updateVMStats() {
     safeFetch('/api/vm-stats')
@@ -411,7 +392,7 @@ function updateVMStatus() {
         .then(data => {
         if (!data) return;
 
-            console.log("VMs:", data);
+            
 
             for (const [name, state] of Object.entries(data)) {
 
@@ -436,7 +417,7 @@ function updateVMStatus() {
 
 intervals.push(setInterval(updateVMStatus, 5000));
 
-
+//============= End of VM status and games section ================
 
 function updateSystem() {
     safeFetch('/api/system')
@@ -473,7 +454,32 @@ function loadStats() {
 }
 
 loadStats();
+
+
+
+
 </script>
 
 </body>
 </html>
+
+// ======================
+// 🔹 INTERVALS / STARTUP
+// ======================
+intervals.push(setInterval(updateStatus, 5000));
+intervals.push(setInterval(updateDockerStats, 5000));
+intervals.push(setInterval(updateBackupStatus, 10000));
+intervals.push(setInterval(updateVMStats, 5000));
+intervals.push(setInterval(updateVMGames, 5000));
+intervals.push(setInterval(updateVMStatus, 5000));
+intervals.push(setInterval(updateSystem, 5000));
+
+// Run everything once immediately
+updateStatus();
+updateDockerStats();
+updateBackupStatus();
+updateVMStats();
+updateVMGames();
+updateVMStatus();
+updateSystem();
+loadStats();

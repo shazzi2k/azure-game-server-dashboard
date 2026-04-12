@@ -104,3 +104,37 @@ button:hover {
     transform: scale(1.05);
     background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
+
+.btn {
+    position: absolute;
+    top: 45px;
+    right: 20px;
+    padding: 8px 14px;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.login-btn {
+    background: #4CAF50;
+}
+
+.logout-btn {
+    background: #ff4d4d;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.loading {
+    opacity: 0.6;
+    font-style: italic;
+}

@@ -1,8 +1,13 @@
+from azure.identity import DefaultAzureCredential
+from azure.mgmt.compute import ComputeManagementClient
+
 from flask import Flask, render_template, jsonify, session, redirect, request
 import os
 import socket
 import psutil
 import platform
+
+
 
 
 
