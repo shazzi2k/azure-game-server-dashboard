@@ -30,7 +30,7 @@ app.secret_key = "df8765sd7a5sd67s4f4d3sdaf4ds3s4a"
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='none'
+    SESSION_COOKIE_SAMESITE='Lax'
 )
 
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -69,7 +69,10 @@ def login():
 
 @app.route("/")
 def home():
-    return "Azure dashboard running 🚀"
+    if not session.get("logged_in"):
+        return redirect("/login")
+
+    return render_template("index.html", user=session.get("user"))
 
 from flask import make_response
 
