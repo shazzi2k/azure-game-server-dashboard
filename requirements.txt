@@ -3,3 +3,5 @@ gunicorn
 psutil
 python-dotenv
 requests
+azure-identity
+azure-mgmt-compute
