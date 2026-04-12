@@ -3,4 +3,5 @@ requests
 gunicorn
 psutilflask
 requests
+python-dotenv
 gunicorn
