@@ -1,6 +1,5 @@
 from flask import Flask, render_template, jsonify, session, redirect, request
 import os
-import subprocess
 import socket
 import psutil
 import platform
@@ -9,16 +8,12 @@ import platform
 
 ### Login block - loads username and password from .env file ###
 
-from dotenv import load_dotenv
-load_dotenv("/srv/data/stacks/game-server-dashboard/.env")
-
-users_raw = os.getenv("DASH_USERS")
+users_raw = os.getenv("DASH_USERS", "admin:password")
 
 USERS = {}
-
-if users_raw:
-    for pair in users_raw.split(","):
-        user, pwd = pair.split(":")
+for pair in users_raw.split(","):
+    if ":" in pair:
+        user, pwd = pair.split(":", 1)
         USERS[user.strip()] = pwd.strip()
 
 
@@ -42,8 +37,6 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        print("RAW INPUT:", username, password)
-        print("USERS:", USERS)
 
         if username:
             username = username.strip()
@@ -69,12 +62,9 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/')
+@app.route("/")
 def home():
-    if not session.get('logged_in'):
-        return redirect('/login')
-
-    return render_template('index.html', user=session.get('user'))
+    return "Azure dashboard running 🚀"
 
 from flask import make_response
 
@@ -86,11 +76,9 @@ def logout():
     return response
 
 
-from flask import request
-from functools import wraps
+
 
 from functools import wraps
-
 from flask import request
 
 def login_required(f):
@@ -136,27 +124,6 @@ def stats():
     }
 
 
-
-
-@app.route('/api/containers')
-@login_required
-def get_containers():
-    result = subprocess.run(
-        ["docker", "ps", "--format", "{{.Names}}"],
-        capture_output=True,
-        text=True
-    )
-
-    running = result.stdout.splitlines()
-
-    containers = ["zomboid", "7days2die", "valheim"]
-
-    status = {}
-    for name in containers:
-        status[name] = "running" if name in running else "stopped"
-
-    return status
-
 from flask import jsonify
 
 @app.route('/api/system')
@@ -174,310 +141,32 @@ def system_status():
         "disk_used": round(disk.used / (1024**3), 2),
         "disk_total": round(disk.total / (1024**3), 2)
     })
-@app.route('/api/docker-stats')
-@login_required
-def docker_stats():
-    import json
-
-    cmd = "docker stats --no-stream --format '{{json .}}'"
-    output = subprocess.getoutput(cmd)
-
-    stats = {}
-
-    for line in output.splitlines():
-        try:
-            data = json.loads(line)
-            name = data["Name"]
-
-            stats[name] = {
-                "cpu": data["CPUPerc"],
-                "mem": data["MemUsage"]
-            }
-        except:
-            continue
-
-    return stats
 
 
-@app.route('/api/backup-status')
-@login_required
-def backup_status():
-    import os
-    import json
-    from flask import jsonify
 
-    path = '/srv/backups/backup_status.json'
 
-    try:
-        if not os.path.exists(path):
-            return jsonify({
-                "status": "unknown",
-                "last_backup": "never",
-                "upload": "unknown"
-            })
-
-        with open(path, 'r') as f:
-            raw = f.read().strip()
-
-            if not raw:
-                raise Exception("Empty JSON file")
-
-            data = json.loads(raw)
-
-        return jsonify(data)
-
-    except Exception as e:
-        print("Backup status error:", e)
-
-        return jsonify({
-            "status": "error",
-            "last_backup": "error",
-            "upload": "error"
-        })
-
-import subprocess
-
-@app.route('/api/vm-stats')
-@login_required
-def vm_stats():
-    vm_name = "windows-gaming"
-
-    try:
-        cpu = psutil.cpu_percent()
-        ram = psutil.virtual_memory()
-
-        return {
-            "cpu": cpu,
-            "ram_used": int(ram.used / (1024**2)),
-            "ram_max": int(ram.total / (1024**2))
-        }
-
-    except Exception as e:
-        return {"error": str(e)}, 500
-
-@app.route('/api/vm-games')
-@login_required
-def vm_games():
-    import requests
-
-    vm_output = subprocess.getoutput("virsh -c qemu:///system list --all")
-
-    if "windows-gaming" in vm_output and "running" not in vm_output:
-        return {
-            "dcs": False,
-            "sons": False,
-            "vm": "stopped"
-        }
-
-    try:
-        data = requests.get("http://192.168.0.58:6000/status", timeout=2).json()
 
         
-        return {
-            "dcs": data.get("dcs", False),
-            "sons": data.get("sons", False),
-            "vm": "running"
-        }
 
-    except Exception as e:
-        print("VM GAMES ERROR:", e)
-        return {
-            "dcs": False,
-            "sons": False,
-            "vm": "unknown"
-        }
 
-@app.route('/api/vms')
-@login_required
-def vm_status():
-    output = subprocess.getoutput("virsh list --all")
-
-    vms = {}
-
-    for line in output.splitlines()[2:]:
-        parts = line.split()
-
-        if len(parts) >= 3:
-            name = parts[1]
-            state = " ".join(parts[2:]).lower()  # handles "shut off"
-
-            if "running" in state:
-                vms[name] = "running"
-            else:
-                vms[name] = "stopped"
-
-    return vms
 
 
 ### VM API / VIRSH SECTION ###
 
-@app.route('/api/vm/start/<name>', methods=['POST'])
-@login_required
-def start_vm(name):
-    result = subprocess.run(
-        ["virsh", "-c", "qemu:///system", "start", name],
-        capture_output=True, text=True
-    )
 
-    if result.returncode == 0:
-        return {"vm": name, "status": "started"}
-    else:
-        return {"error": result.stderr}, 500
-
-@app.route('/api/vm/stop/<name>', methods=['POST'])
-@login_required
-def stop_vm(name):
-    result = subprocess.run(
-        ["virsh", "-c", "qemu:///system", "shutdown", name],
-        capture_output=True,
-        text=True
-    )
-
-    if result.returncode == 0:
-        return {"vm": name, "status": "stopping"}
-    else:
-        return {"error": result.stderr}, 500
-    
-@app.route('/api/vm/restart/<name>', methods=['POST'])
-@login_required
-def restart_vm(name):
-    result = subprocess.run(
-        ["virsh", "-c", "qemu:///system", "reboot", name],
-        capture_output=True,
-        text=True
-    )
-
-    if result.returncode == 0:
-        return {"vm": name, "status": "restarting"}
-    else:
-        return {"error": result.stderr}, 500
-
-@app.route('/api/stop/<game>', methods=['POST'])
-@login_required
-def stop_game(game):
-    import requests
-    try:
-        r = requests.get(f"http://192.168.0.58:6000/stop/{game}", timeout=5)
-        return r.text
-    except Exception as e:
-        return str(e), 500
-
-
-@app.route('/api/restart/<game>', methods=['POST'])
-@login_required
-def restart_game(game):
-    import requests
-    try:
-        r = requests.get(f"http://192.168.0.58:6000/restart/{game}", timeout=5)
-        return r.text
-    except Exception as e:
-        return str(e), 500
-    
-
-
-@app.route('/api/start/sotf', methods=['POST'])
-@login_required
-def start_sotf():
-    import requests
-    try:
-        r = requests.get("http://192.168.0.58:6000/start/sotf", timeout=5)
-        return r.text
-    except Exception as e:
-        return str(e)
-
-
-@app.route('/api/start/dcs', methods=['POST'])
-@login_required
-def start_dcs():
-    import requests
-    try:
-        r = requests.get("http://192.168.0.58:6000/start/dcs", timeout=5)
-        return r.text
-    except Exception as e:
-        return str(e)
     
 ###END VM API / VIRSH SECTION ###
 
 
 
 ###DOCKER API CONTAINER SECTION###
-from flask import jsonify
-import subprocess
 
-@app.route('/api/docker/start/<name>', methods=['POST'])
-@login_required
-def start_container(name):
-    result = subprocess.run(
-        ["docker", "start", name],
-        capture_output=True,
-        text=True
-    )
-
-    print("START:", name)
-    print("STDOUT:", result.stdout)
-    print("STDERR:", result.stderr)
-
-    if result.returncode != 0:
-        return jsonify({
-            "status": "error",
-            "error": result.stderr
-        }), 500
-
-    return jsonify({"status": "started", "container": name})
-
-
-@app.route('/api/docker/stop/<name>', methods=['POST'])
-@login_required
-def stop_container(name):
-    result = subprocess.run(
-        ["docker", "stop", name],
-        capture_output=True,
-        text=True
-    )
-
-    print("STOP:", name)
-    print("STDOUT:", result.stdout)
-    print("STDERR:", result.stderr)
-
-    if result.returncode != 0:
-        return jsonify({
-            "status": "error",
-            "error": result.stderr
-        }), 500
-
-    return jsonify({"status": "stopped", "container": name})
-
-
-@app.route('/api/docker/restart/<name>', methods=['POST'])
-@login_required
-def restart_container(name):
-    result = subprocess.run(
-        ["docker", "restart", name],
-        capture_output=True,
-        text=True
-    )
-
-    print("RESTART:", name)
-    print("STDOUT:", result.stdout)
-    print("STDERR:", result.stderr)
-
-    if result.returncode != 0:
-        return jsonify({
-            "status": "error",
-            "error": result.stderr
-        }), 500
-
-    return jsonify({"status": "restarted", "container": name})
 ###END DOCKER API CONTAINER SECTION###
 
 #######END API ENDPOINTS#######
 
 ###CURRENT STATUS###
-@app.route('/status')
-def status():
-    vms = subprocess.getoutput("virsh list --all")
-    containers = subprocess.getoutput("docker ps -a")
-    return f"<pre>{vms}\n\n{containers}</pre>"
+
 
 
 ###BACKUP SECTION###
