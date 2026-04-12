@@ -13,7 +13,7 @@
         Logged in as: {{ user }}
         <a href="/.auth/logout">Logout</a>
     {% else %}
-        <a href="/login" class="btn login-btn">
+        <a href="/.auth/login/aad">Login</a>
     {% endif %}
 
 </div>
@@ -141,12 +141,10 @@
     
 
 <script>
-let isRedirecting = false;
+
 let intervals = [];
 
-function logout() {
-    window.location.href = "/logout";
-}
+
 
 //API helper with built-in 401 handling and JSON parsing
 
@@ -154,12 +152,8 @@ function safeFetch(url, options = {}) {
     return fetch(url, options)
         .then(res => {
             if (res.status === 401) {
-                if (!isRedirecting) {
-                    isRedirecting = true;
-                    intervals.forEach(clearInterval);
-                    window.location.replace("/login");
-                }
-                throw new Error("Unauthorized");
+              console.log("Unauthorized - handled by Azure auth");
+              return null;
             }
 
             return res.text().then(text => {
@@ -452,23 +446,3 @@ loadStats();
 </body>
 </html>
 
-// ======================
-// 🔹 INTERVALS / STARTUP
-// ======================
-intervals.push(setInterval(updateStatus, 5000));
-intervals.push(setInterval(updateDockerStats, 5000));
-intervals.push(setInterval(updateBackupStatus, 10000));
-intervals.push(setInterval(updateVMStats, 5000));
-intervals.push(setInterval(updateVMGames, 5000));
-intervals.push(setInterval(updateVMStatus, 5000));
-intervals.push(setInterval(updateSystem, 5000));
-
-// Run everything once immediately
-updateStatus();
-updateDockerStats();
-updateBackupStatus();
-updateVMStats();
-updateVMGames();
-updateVMStatus();
-updateSystem();
-loadStats();

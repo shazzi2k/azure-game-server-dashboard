@@ -61,7 +61,6 @@ cpu_name = get_cpu_name()
 #######API ENDPOINTS#######
 
 @app.route("/api/stats")
-@login_required
 def stats():
     return {
         "cpu": get_cpu_name(),
