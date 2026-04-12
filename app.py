@@ -2,6 +2,7 @@ from azure.identity import DefaultAzureCredential
 from azure.mgmt.compute import ComputeManagementClient
 
 from flask import Flask, render_template, jsonify, session, redirect, request
+
 import os
 import socket
 import psutil
@@ -44,8 +45,6 @@ def require_auth():
 ### End login block ###
 
 
-
-
 def get_cpu_name():
     try:
         with open("/proc/cpuinfo") as f:
@@ -69,14 +68,16 @@ def stats():
     }
 
 
-from flask import jsonify
-
 @app.route("/api/system")
 def system():
-    if not require_auth():
-        return {"error": "Unauthorized"}, 401
-
-    return {"status": "ok"}
+    return {
+        "hostname": socket.gethostname(),
+        "cpu": psutil.cpu_percent(),
+        "ram_used": round(psutil.virtual_memory().used / (1024**3), 2),
+        "ram_total": round(psutil.virtual_memory().total / (1024**3), 2),
+        "disk_used": round(psutil.disk_usage('/').used / (1024**3), 2),
+        "disk_total": round(psutil.disk_usage('/').total / (1024**3), 2)
+    }
 
 
 
