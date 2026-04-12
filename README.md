@@ -1,210 +1,77 @@
-# 🎮 ShazCorp Game Server Dashboard
+# ☁️ Azure Game Server Dashboard
 
-A lightweight web-based control panel for managing game servers, virtual machines, and system resources from a single interface.
-
----
-
-## 🚀 Features
-
-* 🔐 **User Authentication**
-
-  * Secure login system using environment variables
-* 🖥️ **System Monitoring**
-
-  * CPU, RAM, Disk usage
-  * Hostname and hardware info
-* 🧠 **VM Management (libvirt / virsh)**
-
-  * Start / Stop / Restart virtual machines
-  * Live VM status + resource usage
-* 🎮 **VM Game Server Control**
-
-  * Remote control via API agent
-  * Supports:
-
-    * Digital Combat Simulator (DCS)
-    * Sons of the Forest
-* 🐳 **Docker Game Server Management**
-
-  * Start / Stop / Restart containers
-  * Live CPU + RAM usage
-  * Supports:
-
-    * Project Zomboid
-    * 7 Days to Die
-    * Valheim
-* 💾 **Backup Monitoring**
-
-  * Last backup timestamp
-  * Next scheduled backup
-  * Upload status
-* ⚡ **Real-time Updates**
-
-  * Auto-refreshing dashboard (5s interval)
+A cloud-based dashboard for managing virtual machines using Microsoft Azure APIs.
 
 ---
 
-## 🏗️ Architecture
+## 🚀 Overview
 
-```text
-Browser (Dashboard UI)
-        ↓
-Flask API (Main Server)
-        ↓
- ├── Docker (Game containers)
- ├── libvirt / virsh (VM control)
- └── Remote Agent (Windows VM)
-```
+This project is a Flask-based web application deployed on Azure App Service that allows users to:
+
+* Monitor system metrics
+* Authenticate securely
+* Control Azure Virtual Machines (start/stop)
+* Interact with cloud resources via REST APIs
 
 ---
 
-## 📦 Requirements
+## 🧱 Architecture
 
-* Python 3.10+
-* Flask
-* psutil
-* Docker
-* libvirt / virsh
-* Linux host (tested on Ubuntu Server)
+User → Web App (Flask) → Azure REST API → Virtual Machines
 
 ---
 
-## ⚙️ Installation
+## 🔐 Security
 
-### 1. Clone repo
-
-```bash
-git clone https://github.com/YOURNAME/game-server-dashboard.git
-cd game-server-dashboard
-```
+* Uses Microsoft Entra ID (Azure AD) App Registration
+* OAuth2 Client Credentials flow
+* Role-Based Access Control (RBAC)
+* Secrets stored securely in App Service environment variables
 
 ---
 
-### 2. Create virtual environment
+## ⚙️ Tech Stack
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
----
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
+* Python (Flask)
+* Azure App Service
+* Azure Virtual Machines
+* GitHub Actions (CI/CD)
+* REST APIs
 
 ---
 
-### 4. Create `.env`
+## 📦 Features
 
-```env
-DASH_USERS=username:password,anotheruser:password
-```
-
-⚠️ Do NOT commit this file
-
----
-
-### 5. Run the app
-
-```bash
-python app.py
-```
+* User authentication (session-based)
+* System monitoring endpoints
+* Cloud-ready API structure
+* CI/CD deployment from GitHub
+* Scalable architecture for VM control
 
 ---
 
-### 6. Access dashboard
+## 🛠️ Deployment
 
-```
-http://YOUR_SERVER_IP:5000
-```
+This application is deployed using Azure App Service and connected to GitHub for automatic deployments.
 
 ---
 
-## 🖥️ VM Agent (Windows)
+## 📌 Future Improvements
 
-A lightweight Flask API runs on the Windows VM to control game servers.
-
-### Example endpoints:
-
-* `/status`
-* `/start/dcs`
-* `/stop/dcs`
-* `/restart/dcs`
+* VM start/stop integration (in progress)
+* Role-based user access
+* Dashboard UI enhancements
+* Auto-scaling logic
+* Cost optimisation features
 
 ---
 
-## 🔐 Security Notes
+## 📷 Screenshots
 
-* Uses session-based authentication
-* `.env` stores credentials (keep private)
-* Recommend:
-
-  * Reverse proxy (NGINX)
-  * HTTPS (Let's Encrypt)
-  * Firewall rules
-
----
-
-## 🛠️ API Overview
-
-### System
-
-* `/api/system`
-* `/api/stats`
-
-### VM
-
-* `/api/vm/start/<name>`
-* `/api/vm/stop/<name>`
-* `/api/vm/restart/<name>`
-* `/api/vms`
-* `/api/vm-stats`
-
-### VM Games
-
-* `/api/start/<game>`
-* `/api/stop/<game>`
-* `/api/restart/<game>`
-* `/api/vm-games`
-
-### Docker
-
-* `/api/docker/start/<name>`
-* `/api/docker/stop/<name>`
-* `/api/docker/restart/<name>`
-* `/api/docker-stats`
-* `/api/containers`
-
-### Backup
-
-* `/api/backup-status`
-
----
-
-## 📊 Future Improvements
-
-* 🔁 WebSocket real-time updates
-* 👥 Multi-user roles & permissions
-* 📜 Action logging / audit trail
-* 📦 Docker Compose integration
-* 📈 Performance graphs
-* 🤖 Discord bot integration improvements
-
----
-
-## ⚠️ Disclaimer
-
-This project is designed for personal / homelab use.
-Use proper security practices before exposing it publicly.
+*(Add screenshots of your dashboard here once complete)*
 
 ---
 
 ## 👤 Author
 
-ShazCorp Cloud Platform
-Built for managing distributed game infrastructure.
-
----
+Aaron Schorah
