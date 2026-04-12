@@ -3,10 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>ShazCorp Cloud</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=12">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=13">
+    
 </head>
 <body>
-    
+    <div style="position:absolute; top:15px; right:20px; color:white;">
+
+    {% if user %}
+        Logged in as: {{ user }}
+        <a href="/logout" style="
+            position:absolute;
+            top:45px;
+            right:20px;
+            padding:8px 14px;
+            background:#ff4d4d;
+            color:white;
+            text-decoration:none;
+            border-radius:6px;
+        ">
+            Logout
+</a>
+    {% else %}
+        <a href="/login" style="
+            position:absolute;
+            top:45px;
+            right:20px;
+            padding:8px 14px;
+            background:#4CAF50;
+            color:white;
+            text-decoration:none;
+            border-radius:6px;
+        ">
+            Login
+</a>
+    {% endif %}
+
+</div>
 
     <div class="header">
         <div class="branding">
@@ -43,9 +75,9 @@
                     <span id="windows-gaming-text">Checking...</span>
                 </div>
                 <p id="windows-gaming-vmstats">CPU: -- | RAM: --</p>
-                <button onclick="control('vm/start/windows-gaming', 'windows-gaming-text', 'Starting...', this)">Start</button>
-                <button onclick="control('vm/stop/windows-gaming', 'windows-gaming-text', 'Stopping...', this)">Stop</button>
-                <button onclick="control('vm/restart/windows-gaming', 'windows-gaming-text', 'Restarting...', this)">Restart</button>
+                <button onclick="control('api/vm/start/windows-gaming', 'windows-gaming-text', 'Starting...', this)">Start</button>
+                <button onclick="control('api/vm/stop/windows-gaming', 'windows-gaming-text', 'Stopping...', this)">Stop</button>
+                <button onclick="control('api/vm/restart/windows-gaming', 'windows-gaming-text', 'Restarting...', this)">Restart</button>
                 </div>
                 Future VM expansion, but currently only the Windows Gaming VM is available.
     </div>
@@ -80,9 +112,12 @@
         </div>
     </div>
         <div class="card">
-            <h2>Backups</h2>
-            <p>Last Backup: 2 hours ago</p>
-            <button onclick="alert('Backup triggered')">Run Backup</button>
+            <h2>Backup-panel</h2>
+            <p id="backup-last">Last: -</p>
+            <p id="backup-next">Next: -</p>
+            <p id="backup-status">Status: -</p>
+            <p id="backup-upload">Cloud: -</p>
+            
         </div>
         <div class="card">
     <h2>Docker Game Servers</h2>
@@ -94,9 +129,9 @@
             <span id="zomboid-text">Checking...</span>
         </div>
              <p id="zomboid-stats">CPU: -- | RAM: --</p>
-        <button onclick="control('docker/start/zomboid', 'zomboid-text', 'Starting...', this)">Start</button>
-        <button onclick="control('docker/stop/zomboid', 'zomboid-text', 'Stopping...', this)">Stop</button>
-        <button onclick="control('docker/restart/zomboid', 'zomboid-text', 'Restarting...', this)">Restart</button>
+        <button onclick="control('api/docker/start/zomboid', 'zomboid-text', 'Starting...', this)">Start</button>
+        <button onclick="control('api/docker/stop/zomboid', 'zomboid-text', 'Stopping...', this)">Stop</button>
+        <button onclick="control('api/docker/restart/zomboid', 'zomboid-text', 'Restarting...', this)">Restart</button>
     </div>
 
     <div class="server">
@@ -106,9 +141,9 @@
             <span id="7days2die-text">Checking...</span>
         </div>
             <p id="7days2die-stats">CPU: -- | RAM: --</p>
-        <button onclick="control('docker/start/7days2die', '7days2die-text', 'Starting...', this)">Start</button>
-        <button onclick="control('docker/stop/7days2die', '7days2die-text', 'Stopping...', this)">Stop</button>
-        <button onclick="control('docker/restart/7days2die', '7days2die-text', 'Restarting...', this)">Restart</button>
+        <button onclick="control('api/docker/start/7days2die', '7days2die-text', 'Starting...', this)">Start</button>
+        <button onclick="control('api/docker/stop/7days2die', '7days2die-text', 'Stopping...', this)">Stop</button>
+        <button onclick="control('api/docker/restart/7days2die', '7days2die-text', 'Restarting...', this)">Restart</button>
     </div>
 
     <div class="server">
@@ -118,9 +153,9 @@
             <span id="valheim-text">Checking...</span>
         </div>
             <p id="valheim-stats">CPU: -- | RAM: --</p>
-        <button onclick="control('docker/start/valheim', 'valheim-text', 'Starting...', this)">Start</button>
-        <button onclick="control('docker/stop/valheim', 'valheim-text', 'Stopping...', this)">Stop</button>
-        <button onclick="control('docker/restart/valheim', 'valheim-text', 'Restarting...', this)">Restart</button>
+        <button onclick="control('api/docker/start/valheim', 'valheim-text', 'Starting...', this)">Start</button>
+        <button onclick="control('api/docker/stop/valheim', 'valheim-text', 'Stopping...', this)">Stop</button>
+        <button onclick="control('api/docker/restart/valheim', 'valheim-text', 'Restarting...', this)">Restart</button>
     </div>
 </div>
 
@@ -128,30 +163,59 @@
     
 
 <script>
+let isRedirecting = false;
+let intervals = [];
 
+function logout() {
+    window.location.href = "/logout";
+}
 
+function safeFetch(url, options = {}) {
+    return fetch(url, options)
+        .then(res => {
+            if (res.status === 401) {
+                if (!isRedirecting) {
+                    isRedirecting = true;
+                    intervals.forEach(clearInterval);
+                    window.location.replace("/login");
+                }
+                throw new Error("Unauthorized");
+            }
+
+            return res.text().then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch {
+                    console.log("Non-JSON response:", text);
+                    return null;
+                }
+            });
+        })
+        .catch(err => {
+            console.log("Fetch error:", err);
+        });
+}
 
 function startVM(name) {
-    fetch(`/vm/${name}/start`, { method: "POST" });
+    safeFetch(`/vm/${name}/start`, { method: "POST" });
 }
 
 function stopVM(name) {
-    fetch(`/vm/${name}/stop`, { method: "POST" });
+    safeFetch(`/vm/${name}/stop`, { method: "POST" });
 }
 
 function restartVM(name) {
-    fetch(`/vm/${name}/restart`, { method: "POST" });
+    safeFetch(`/vm/${name}/restart`, { method: "POST" });
 }
 
 function sendAction(action) {
-    fetch(`/${action}`)
-        .then(res => res.json())
+    safeFetch(`/${action}`)
         .then(data => {
+        if (!data) return;
             alert("Server " + data.status);
         });
 }
-</script>
-<script>
+
 function control(path, labelId = null, message = null, button = null) {
 
     if (button) {
@@ -165,8 +229,7 @@ function control(path, labelId = null, message = null, button = null) {
         }
     }
 
-    fetch('/' + path)
-        .then(res => res.text())
+    safeFetch('/' + path, { method: "POST" })
         .then(data => {
             console.log("Action result:", data);
         })
@@ -180,12 +243,11 @@ function control(path, labelId = null, message = null, button = null) {
             }
         });
 }
-</script>
-<script>
+
 function updateStatus() {
-    fetch('/api/containers')
-        .then(res => res.json())
+    safeFetch('/api/containers')
         .then(data => {
+        if (!data) return;
 
             for (const [name, state] of Object.entries(data)) {
 
@@ -204,21 +266,20 @@ function updateStatus() {
             }
         });
 }
+intervals.push(setInterval(updateStatus, 5000));
 function updateDockerStats() {
-    fetch('/api/docker-stats')
-        .then(res => res.json())
+    if (isRedirecting) return;
+
+    safeFetch('/api/docker-stats')
         .then(data => {
+            if (!data) return;
 
             console.log("Docker stats:", data);
 
             for (const [name, stats] of Object.entries(data)) {
 
                 let el = document.getElementById(name + "-stats");
-
-                if (!el) {
-                    console.log("Missing element:", name + "-stats");
-                    continue;
-                }
+                if (!el) continue;
 
                 let memUsed = stats.mem.split("/")[0].trim();
 
@@ -237,13 +298,63 @@ function updateDockerStats() {
         });
 }
 
-setInterval(updateDockerStats, 5000);
-updateDockerStats();
+intervals.push(setInterval(updateDockerStats, 5000));
+
+//backup section
+
+function updateBackupStatus() {
+    safeFetch('/api/backup-status')
+        .then(data => {
+        if (!data) return;
+
+            document.getElementById("backup-last").innerText =
+                "Last: " + data.last_backup;
+
+            // Next backup (Sunday 2AM calc)
+            let now = new Date();
+            let next = new Date();
+            
+            let targetDay = 2 //tuesday
+            let targetHour = 1 // 01:00
+
+            next.setDate(now.getDate() + (7 - now.getDay() + targetDay) % 7);
+            next.setHours(targetHour, 2, 0, 0, 0);
+
+            if (now.getDay() === targetDay && now.getHours() < targetHour) {
+                next = new Date();
+                next.setHours(targetHour, 0, 0, 0);
+            }
+
+            document.getElementById("backup-next").innerText =
+                "Next: " + next.toLocaleString();
+
+            // Status
+            let statusEl = document.getElementById("backup-status");
+            if (data.status === "true") {
+                statusEl.innerText = "Status: OK";
+                statusEl.style.color = "lightgreen";
+            } else {
+                statusEl.innerText = "Status: FAILED";
+                statusEl.style.color = "red";
+            }
+
+            // Upload
+            let uploadEl = document.getElementById("backup-upload");
+            if (data.upload === "true") {
+                uploadEl.innerText = "Cloud: Uploaded";
+                uploadEl.style.color = "lightgreen";
+            } else {
+                uploadEl.innerText = "Cloud: FAILED";
+                uploadEl.style.color = "red";
+            }
+        });
+}
+intervals.push(setInterval(updateBackupStatus, 10000));
 
 function updateVMStats() {
-    fetch('/api/vm-stats')
-        .then(res => res.json())
+    safeFetch('/api/vm-stats')
         .then(data => {
+        if (!data) return;
 
             let el = document.getElementById("windows-gaming-vmstats");
             if (!el) return;
@@ -252,14 +363,13 @@ function updateVMStats() {
         });
 }
 
-setInterval(updateVMStats, 5000);
-updateVMStats();
+intervals.push(setInterval(updateVMStats, 5000));
 
 
 function updateVMGames() {
-    fetch('/api/vm-games')
-        .then(res => res.json())
+    safeFetch('/api/vm-games')
         .then(data => {
+        if (!data) return;
 
             console.log("VM Games:", data);
 
@@ -293,14 +403,13 @@ function updateVMGames() {
         });
 }
 
-setInterval(updateVMGames, 5000);
-updateVMGames();
+intervals.push(setInterval(updateVMGames, 5000));
 
 
 function updateVMStatus() {
-    fetch('/api/vms')
-        .then(res => res.json())
+    safeFetch('/api/vms')
         .then(data => {
+        if (!data) return;
 
             console.log("VMs:", data);
 
@@ -325,13 +434,14 @@ function updateVMStatus() {
         });
 }
 
-setInterval(updateVMStatus, 5000);
-updateVMStatus();
+intervals.push(setInterval(updateVMStatus, 5000));
+
+
 
 function updateSystem() {
-    fetch('/api/system')
-        .then(res => res.json())
+    safeFetch('/api/system')
         .then(data => {
+        if (!data) return;
             document.getElementById("hostname").innerText =
                 "Server: " + data.hostname;
 
@@ -346,21 +456,18 @@ function updateSystem() {
         });
 }
 
-setInterval(updateSystem, 5000);
-updateSystem();
-setInterval(updateStatus, 5000);
-updateStatus();
+intervals.push(setInterval(updateSystem, 5000));
 
-fetch("/stats")
-  .then(res => res.json())
+safeFetch("/api/stats")
   .then(data => {
+        if (!data) return;
     document.getElementById("cpu-name").innerText = data.cpu;
   });
 
 function loadStats() {
-    fetch("/stats")
-      .then(res => res.json())
+    safeFetch("/api/stats")
       .then(data => {
+        if (!data) return;
         document.getElementById("cpu-name").innerText = data.cpu;
       });
 }

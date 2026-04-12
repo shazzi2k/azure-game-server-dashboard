@@ -1,4 +1,23 @@
+# Python
+__pycache__/
+*.pyc
 venv/
+
+# Env
+.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Secrets
+*.key
+*.pem
+
+# Flask session (if any)
+instance/venv/
 __pycache__/
 *.pyc
 .env
