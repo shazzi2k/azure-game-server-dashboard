@@ -1,5 +1,5 @@
-from azure.identity import DefaultAzureCredential
-from azure.mgmt.compute import ComputeManagementClient
+#from azure.identity import DefaultAzureCredential
+#from azure.mgmt.compute import ComputeManagementClient
 
 from flask import Flask, render_template, jsonify, session, redirect, request
 
