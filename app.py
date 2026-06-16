@@ -106,8 +106,60 @@ def system():
         "disk_total": round(psutil.disk_usage('/').total / (1024**3), 2)
     }
 
+@app.route("/api/vm-system")
+def vm_system():
 
+    response = requests.get(
+        f"{VM_AGENT}/api/system",
+        timeout=5
+    )
 
+    return response.json()
+
+#######End of API ENDPOINTS#######
+
+#######DockerContainer API ENDPOINTS#######
+
+@app.route("/api/containers")
+def containers():
+
+    response = requests.get(
+        f"{VM_AGENT}/api/containers",
+        timeout=5
+    )
+
+    return response.json()
+
+@app.route("/api/docker/start/<name>", methods=["POST"])
+def docker_start(name):
+
+    response = requests.post(
+        f"{VM_AGENT}/api/docker/start/{name}",
+        timeout=10
+    )
+
+    return response.json(), response.status_code
+
+@app.route("/api/docker/stop/<name>", methods=["POST"])
+def docker_stop(name):
+
+    response = requests.post(
+        f"{VM_AGENT}/api/docker/stop/{name}",
+        timeout=10
+    )
+
+    return response.json(), response.status_code
+
+@app.route("/api/docker/restart/<name>", methods=["POST"])
+def docker_restart(name):
+
+    response = requests.post(
+        f"{VM_AGENT}/api/docker/restart/{name}",
+        timeout=10
+    )
+
+    return response.json(), response.status_code
+####### End DockerContainer API ENDPOINTS#######
 
 
         
