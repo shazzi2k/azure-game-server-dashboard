@@ -7,7 +7,9 @@ import os
 import socket
 import psutil
 import platform
+import requests
 
+VM_AGENT = "http://52.142.166.248:5000"
 
 ### Login block - loads username and password from .env file ###
 
@@ -44,6 +46,30 @@ def require_auth():
 
 ### End login block ###
 
+### TEST VM API ###
+
+@app.route("/api/vm-health")
+def vm_health():
+
+    try:
+        response = requests.get(
+            f"{VM_AGENT}/api/health",
+            timeout=5
+        )
+
+        return response.json()
+
+    except Exception as e:
+        return {
+            "status": "offline",
+            "error": str(e)
+        }
+
+
+### End TEST VM API ###
+
+### System Information Functions ###
+
 
 def get_cpu_name():
     try:
@@ -56,6 +82,7 @@ def get_cpu_name():
 
 cpu_name = get_cpu_name()
 
+##End System Information Functions ###
 
 #######API ENDPOINTS#######
 
