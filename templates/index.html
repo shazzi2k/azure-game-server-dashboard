@@ -97,44 +97,44 @@
             <p id="backup-upload">Cloud: -</p>
             
         </div>
-        <div class="card">
-    <h2>Docker Game Servers</h2>
+    <div class="card">
+        <h2>Docker Game Servers</h2>
 
-    <div class="server">
-        <h3>Zomboid</h3>
-        <div class="status">
-            <div class="dot" id="zomboid-dot"></div>
-            <span id="zomboid-text">Checking...</span>
+        <div class="server">
+            <h3>Zomboid</h3>
+            <div class="status">
+                <div class="dot" id="zomboid-dot"></div>
+                <span id="zomboid-text">Checking...</span>
+            </div>
+                <p id="zomboid-stats">CPU: -- | RAM: --</p>
+            <button onclick="control('api/docker/start/zomboid', 'zomboid-text', 'Starting...', this)">Start</button>
+            <button onclick="control('api/docker/stop/zomboid', 'zomboid-text', 'Stopping...', this)">Stop</button>
+            <button onclick="control('api/docker/restart/zomboid', 'zomboid-text', 'Restarting...', this)">Restart</button>
         </div>
-             <p id="zomboid-stats">CPU: -- | RAM: --</p>
-        <button onclick="control('api/docker/start/zomboid', 'zomboid-text', 'Starting...', this)">Start</button>
-        <button onclick="control('api/docker/stop/zomboid', 'zomboid-text', 'Stopping...', this)">Stop</button>
-        <button onclick="control('api/docker/restart/zomboid', 'zomboid-text', 'Restarting...', this)">Restart</button>
-    </div>
 
-    <div class="server">
-        <h3>7 Days to Die</h3>
-        <div class="status">
-            <div class="dot" id="7days2die-dot"></div>
-            <span id="7days2die-text">Checking...</span>
+        <div class="server">
+            <h3>7 Days to Die</h3>
+            <div class="status">
+                <div class="dot" id="7days2die-dot"></div>
+                <span id="7days2die-text">Checking...</span>
+            </div>
+                <p id="7days2die-stats">CPU: -- | RAM: --</p>
+            <button onclick="control('api/docker/start/7days2die', '7days2die-text', 'Starting...', this)">Start</button>
+            <button onclick="control('api/docker/stop/7days2die', '7days2die-text', 'Stopping...', this)">Stop</button>
+            <button onclick="control('api/docker/restart/7days2die', '7days2die-text', 'Restarting...', this)">Restart</button>
         </div>
-            <p id="7days2die-stats">CPU: -- | RAM: --</p>
-        <button onclick="control('api/docker/start/7days2die', '7days2die-text', 'Starting...', this)">Start</button>
-        <button onclick="control('api/docker/stop/7days2die', '7days2die-text', 'Stopping...', this)">Stop</button>
-        <button onclick="control('api/docker/restart/7days2die', '7days2die-text', 'Restarting...', this)">Restart</button>
-    </div>
 
-    <div class="server">
-        <h3>Valheim</h3>
-        <div class="status">
-            <div class="dot" id="valheim-dot"></div>
-            <span id="valheim-text">Checking...</span>
+        <div class="server">
+            <h3>Valheim</h3>
+            <div class="status">
+                <div class="dot" id="valheim-dot"></div>
+                <span id="valheim-text">Checking...</span>
+            </div>
+                <p id="valheim-stats">CPU: -- | RAM: --</p>
+            <button onclick="control('api/docker/start/valheim', 'valheim-text', 'Starting...', this)">Start</button>
+            <button onclick="control('api/docker/stop/valheim', 'valheim-text', 'Stopping...', this)">Stop</button>
+            <button onclick="control('api/docker/restart/valheim', 'valheim-text', 'Restarting...', this)">Restart</button>
         </div>
-            <p id="valheim-stats">CPU: -- | RAM: --</p>
-        <button onclick="control('api/docker/start/valheim', 'valheim-text', 'Starting...', this)">Start</button>
-        <button onclick="control('api/docker/stop/valheim', 'valheim-text', 'Stopping...', this)">Stop</button>
-        <button onclick="control('api/docker/restart/valheim', 'valheim-text', 'Restarting...', this)">Restart</button>
-    </div>
     <div class="card">
         <h3>Container Logs</h3>
 
