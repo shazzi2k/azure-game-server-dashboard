@@ -9,7 +9,7 @@ import psutil
 import platform
 import requests
 
-VM_AGENT = "http://52.142.166.248:5000"
+VM_AGENT = os.environ["VM_AGENT"]
 
 ### Login block - loads username and password from .env file ###
 
@@ -114,6 +114,56 @@ def containers():
 
     response = requests.get(
         f"{VM_AGENT}/api/containers",
+        timeout=5
+    )
+
+    return response.json()
+
+@app.route('/api/docker/version')
+def docker_version():
+
+    response = requests.get(
+        f"{VM_AGENT}/api/docker/version",
+        timeout=5
+    )
+
+    return response.json()
+
+@app.route('/api/docker/info')
+def docker_info():
+
+    response = requests.get(
+        f"{VM_AGENT}/api/docker/info",
+        timeout=5
+    )
+
+    return response.text
+
+@app.route('/api/docker/logs/<name>')
+def docker_logs(name):
+
+    response = requests.get(
+        f"{VM_AGENT}/api/docker/logs/{name}",
+        timeout=10
+    )
+
+    return response.json()
+
+@app.route('/api/uptime')
+def uptime():
+
+    response = requests.get(
+        f"{VM_AGENT}/api/uptime",
+        timeout=5
+    )
+
+    return response.json()
+
+@app.route('/api/version')
+def version():
+
+    response = requests.get(
+        f"{VM_AGENT}/api/version",
         timeout=5
     )
 

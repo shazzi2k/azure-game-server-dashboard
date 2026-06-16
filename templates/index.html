@@ -135,12 +135,46 @@
         <button onclick="control('api/docker/stop/valheim', 'valheim-text', 'Stopping...', this)">Stop</button>
         <button onclick="control('api/docker/restart/valheim', 'valheim-text', 'Restarting...', this)">Restart</button>
     </div>
+    <div class="card">
+        <h3>Container Logs</h3>
+
+        <select id="log-container">
+            <option value="zomboid">Zomboid</option>
+            <option value="7days2die">7 Days To Die</option>
+            <option value="valheim">Valheim</option>
+        </select>
+
+        <button onclick="loadLogs()">
+            Refresh Logs
+        </button>
+
+        <pre id="logs-output">
+            No logs loaded.
+        </pre>
+    </div>
 </div>
 
     
     
 
 <script>
+async function loadLogs() {
+
+    const container =
+        document.getElementById("log-container").value;
+
+    const response = await fetch(
+        `/api/docker/logs/${container}`
+    );
+
+    const data = await response.json();
+
+    document.getElementById("logs-output")
+        .textContent = data.logs;
+}
+
+
+
 
 let intervals = [];
 
