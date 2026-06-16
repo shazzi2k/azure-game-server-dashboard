@@ -71,7 +71,7 @@ def vm_health():
 ### System Information Functions ###
 
 
-#def get_cpu_name():
+def get_cpu_name():
     try:
         with open("/proc/cpuinfo") as f:
             for line in f:
@@ -80,7 +80,7 @@ def vm_health():
     except:
         return "Unknown CPU"
 
-#cpu_name = get_cpu_name()
+cpu_name = get_cpu_name()
 
 ##End System Information Functions ###
 
