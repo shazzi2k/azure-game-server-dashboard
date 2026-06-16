@@ -71,7 +71,7 @@ def vm_health():
 ### System Information Functions ###
 
 
-def get_cpu_name():
+#def get_cpu_name():
     try:
         with open("/proc/cpuinfo") as f:
             for line in f:
@@ -80,7 +80,7 @@ def get_cpu_name():
     except:
         return "Unknown CPU"
 
-cpu_name = get_cpu_name()
+#cpu_name = get_cpu_name()
 
 ##End System Information Functions ###
 
@@ -96,17 +96,6 @@ def stats():
 
 
 @app.route("/api/system")
-def system():
-    return {
-        "hostname": socket.gethostname(),
-        "cpu": psutil.cpu_percent(),
-        "ram_used": round(psutil.virtual_memory().used / (1024**3), 2),
-        "ram_total": round(psutil.virtual_memory().total / (1024**3), 2),
-        "disk_used": round(psutil.disk_usage('/').used / (1024**3), 2),
-        "disk_total": round(psutil.disk_usage('/').total / (1024**3), 2)
-    }
-
-@app.route("/api/vm-system")
 def vm_system():
 
     response = requests.get(
