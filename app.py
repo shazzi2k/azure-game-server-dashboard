@@ -106,6 +106,20 @@ def vm_system():
     return response.json()
 
 #######End of API ENDPOINTS#######
+#######START of TEMPLATE CALLS#######
+
+@app.route('/api/start/<template>', methods=['POST'])
+def start_template(template):
+
+    response = requests.post(
+        f"{VM_AGENT}/api/start/{template}",
+        timeout=1800
+    )
+
+    return response.json()
+
+
+
 
 #######DockerContainer API ENDPOINTS#######
 

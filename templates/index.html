@@ -110,6 +110,7 @@
             <button onclick="control('api/docker/start/zomboid', 'zomboid-text', 'Starting...', this)">Start</button>
             <button onclick="control('api/docker/stop/zomboid', 'zomboid-text', 'Stopping...', this)">Stop</button>
             <button onclick="control('api/docker/restart/zomboid', 'zomboid-text', 'Restarting...', this)">Restart</button>
+            <button onclick="control('api/start/zomboid', 'zomboid-text', 'Deploying...', this)">Deploy</button>
         </div>
 
         <div class="server">
@@ -173,7 +174,19 @@ async function loadLogs() {
     document.getElementById("logs-output")
         .textContent = data.logs;
 }
+async function startTemplate(template) {
 
+    const response = await fetch(
+        `/api/start/${template}`,
+        {
+            method: "POST"
+        }
+    );
+
+    const data = await response.json();
+
+    alert(data.status);
+}
 
 
 
