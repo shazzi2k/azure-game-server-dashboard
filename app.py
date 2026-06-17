@@ -122,11 +122,11 @@ def start_template(template):
 
 
 #######DockerContainer API Calls#######
-@app.route("/api/docker-stats")
+@app.route("/api/containerstats")
 def docker_stats():
 
     response = requests.get(
-        f"{VM_AGENT}/api/docker-stats",
+        f"{VM_AGENT}/api/containerstats",
         timeout=30
     )
 
