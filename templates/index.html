@@ -286,7 +286,8 @@ function updateStatus() {
             }
         });
 }
-
+updateStatus();
+intervals.push(setInterval(updateStatus, 5000));
 
 
 //====End of docker instances
