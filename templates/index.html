@@ -285,37 +285,7 @@ function updateStatus() {
             }
         });
 }
-intervals.push(setInterval(updateStatus, 5000));
-function updateDockerStats() {
-    if (isRedirecting) return;
 
-    safeFetch('/api/docker-stats')
-        .then(data => {
-            if (!data) return;
-
-            
-
-            for (const [name, stats] of Object.entries(data)) {
-
-                let el = document.getElementById(name + "-stats");
-                if (!el) continue;
-
-                let memUsed = stats.mem.split("/")[0].trim();
-
-                function convertToGB(mem) {
-                    if (mem.includes("MiB")) {
-                        return (parseFloat(mem) / 1024).toFixed(2) + " GB";
-                    }
-                    if (mem.includes("GiB")) {
-                        return parseFloat(mem).toFixed(2) + " GB";
-                    }
-                    return mem;
-                }
-
-                el.innerText = `CPU: ${stats.cpu} | RAM: ${convertToGB(memUsed)}`;
-            }
-        });
-}
 
 intervals.push(setInterval(updateDockerStats, 5000));
 //====End of docker instances
