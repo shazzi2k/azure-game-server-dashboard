@@ -176,6 +176,7 @@
     
 
 <script>
+let intervals = [];
 async function loadLogs() {
 
     const container =
@@ -217,7 +218,7 @@ async function loadContainerStats() {
 }
 
 
-let intervals = [];
+
 loadContainerStats();
 intervals.push(setInterval(loadContainerStats, 5000));
 
