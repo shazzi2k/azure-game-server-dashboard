@@ -138,3 +138,14 @@ button:disabled {
     opacity: 0.6;
     font-style: italic;
 }
+.logs-box {
+    height: 400px;
+    overflow-y: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+    font-size: 12px;
+    background: #111;
+    border: 1px solid #333;
+    padding: 10px;
+    border-radius: 6px;
+}

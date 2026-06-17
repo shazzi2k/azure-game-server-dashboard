@@ -150,7 +150,7 @@
             Refresh Logs
         </button>
 
-        <pre id="logs-output">
+        <pre id="logs-output" class="logs-box">
             No logs loaded.
         </pre>
     </div>
@@ -187,7 +187,18 @@ async function startTemplate(template) {
 
     alert(data.status);
 }
+async function loadContainerStats() {
 
+    const response = await fetch('/api/containerstats');
+
+    const data = await response.json();
+
+    if (data.zomboid) {
+
+        document.getElementById('zomboid-stats').innerText =
+            `CPU: ${data.zomboid.cpu} | RAM: ${data.zomboid.memory}`;
+    }
+}
 
 
 let intervals = [];

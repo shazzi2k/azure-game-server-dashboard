@@ -121,7 +121,16 @@ def start_template(template):
 
 
 
-#######DockerContainer API ENDPOINTS#######
+#######DockerContainer API Calls#######
+@app.route("/api/containerstats")
+def container_stats():
+
+    response = requests.get(
+        f"{VM_AGENT}/api/containerstats",
+        timeout=30
+    )
+
+    return response.json()
 
 @app.route("/api/containers")
 def containers():
