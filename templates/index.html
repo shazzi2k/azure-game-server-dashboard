@@ -287,7 +287,7 @@ function updateStatus() {
 }
 
 
-intervals.push(setInterval(updateDockerStats, 5000));
+intervals.push(setInterval(updateContainerStats, 5000));
 //====End of docker instances
 //============= Backup status update interval moved to app.py to reduce load and avoid 401 issues during login/logout. =================
 
